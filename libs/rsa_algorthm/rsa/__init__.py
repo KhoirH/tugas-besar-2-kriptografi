@@ -3,10 +3,7 @@
 # Date created : 15-01-2021
 import sys
 
-try:
-    import generate_key
-except ModuleNotFoundError:
-    import libs.rsa_algorthm.rsa.generate_key
+from  libs.rsa_algorthm.rsa import generate_key
     
 SYMBOLS="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 ,!?.\n"
 
@@ -56,7 +53,7 @@ def read_key_file(filename):
     return (int(keysize), int(n), int(EorD))
 
 if __name__ == "__main__":
-    pubkey,privkey=generate_key.get_key(1024)
+    pubkey,privkey= generate_key.get_key(1024)
     text="ayush"
     cipher=encrypt_message(text, pubkey, 169)
     print(cipher)
