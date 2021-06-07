@@ -9,7 +9,7 @@ prime.remove("generate_key.py")
 prime.remove("rsa")
 sys.path.append("\\".join(prime))
 
-from prime import generate_prime
+from libs.rsa_algorthm.prime import generate_prime
 from random import randrange
 
 def gcd(a, b):
