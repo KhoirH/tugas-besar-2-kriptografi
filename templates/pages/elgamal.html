@@ -1,0 +1,141 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<div class="container">
+  <div class="mt-4">
+    <h6>Generate Key</h6>
+  </div>
+  <form class="row g-3">
+    <div class="col-auto">
+      <label >
+        Public Key
+      </label>
+      <textarea 
+        name="public_key"
+        class="form-control"
+        readonly>
+      </textarea>
+    </div>
+    <div class="col-auto">
+      <label>
+        Private Key
+      </label>
+      <textarea
+        name="private_key"
+        class="form-control"
+        readonly>
+      </textarea>
+    </div>
+    <div class="col-auto">
+      <button
+        type="submit"
+        class="btn btn-primary mb-3">Generate</button>
+    </div>
+  </form>
+  <br/>
+  <div class="row">
+    <div>
+      <button
+        type="submit"
+        class="btn btn-primary mb-3">Download key</button>
+    </div>
+  </div>
+  <div class="wrapper row mt-4">
+    <div class="col">
+      <h6>Elgamal Encryption</h6>
+      <form>
+        <label>
+          Enter Plain Text to Encrypt
+        </label>
+        <textarea
+          name="plain_text"
+          class="form-control">
+        </textarea>
+        <br/>
+        <label>
+          Enter Public
+        </label>
+        <textarea
+          name="enter_key"
+          class="form-control">
+        </textarea>
+        <br/>
+        <div class="row">
+          <div>
+            <button
+              type="submit"
+              class="btn btn-outline-primary mb-3">Upload key</button>
+          </div>
+        </div>
+        <br/>
+        <div>
+        <button
+          type="submit"
+          class="btn btn-primary">Encrypt</button>
+        </div>
+        <br/>
+        <label>
+          Output
+        </label>
+        <textarea
+          name="output"
+          class="form-control"
+          readonly>
+        </textarea>
+        <div>
+          <label>Time execution: 00</label>
+        </div> 
+      </form>
+    </div>
+    <div class="col">
+      <h6>Elgamal Decryption</h6>
+      <form>
+        <label>
+          Enter Encrypted Text to Decrypt
+        </label>
+        <textarea
+          name="chiper_text"
+          class="form-control">
+        </textarea>
+        <br/>
+        <label>
+          Enter Private key
+        </label>
+        <textarea
+          name="private_key"
+          class="form-control">
+        </textarea>
+        <br/>
+        <div class="row">
+          <div>
+            <button
+              type="submit"
+              class="btn btn-outline-primary mb-3">Upload key</button>
+          </div>
+        </div>
+        <br/>
+        <div>
+        <button
+          type="submit"
+          class="btn btn-primary">Decrypt</button>
+        </div>
+        <br/>
+        <label>
+          Output
+        </label>
+        <textarea
+          name="output"
+          class="form-control"
+          readonly>
+        </textarea> 
+        <div>
+          <label>Time execution: 00</label>
+        </div> 
+      </form>
+    </div>
+  </div>
+</div>
+</br>
+
+{% endblock %}

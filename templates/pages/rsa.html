@@ -1,0 +1,220 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<div class="container">
+  <div class="mt-4">
+    <h6>Generate Key</h6>
+  </div>
+  <form class="row g-3" id="generate_key">
+    <div class="col-auto">
+      <label >
+        Public Key
+      </label>
+      <textarea 
+        name="public_key"
+        class="form-control"
+        readonly></textarea>
+    </div>
+    <div class="col-auto">
+      <label>
+        Private Key
+      </label>
+      <textarea
+        name="private_key"
+        class="form-control"
+        readonly></textarea>
+    </div>
+    <div class="col-auto">
+      <input
+        type="submit"
+        value="Generate"
+        name="button"
+        class="btn btn-primary mb-3"
+      />
+      <input
+        type="reset"
+        value="Reset"
+        class="btn btn-primary mb-3"
+      />
+    </div>
+  </form>
+  <br/>
+  <div class="row">
+    <form action="/generate" method="post" id="generate_file">
+      <div>
+        <input
+          name="pubkey"
+          type="hidden"
+        />
+        <input
+          name="privkey"
+          type="hidden"
+        />
+        <input
+          type="submit"
+          value="Download public key"
+          name="button"
+          placeholder=""
+          class="btn btn-primary mb-3"
+        />
+        <input
+          type="submit"
+          value="Download private key"
+          name="button"
+          placeholder=""
+          class="btn btn-primary mb-3"
+        />
+      </div>
+    </form>
+  </div>
+  <div class="wrapper row mt-4">
+    <div class="col">
+      <h6>RSA Encryption</h6>
+      <form id="form-encription"></form>
+      <form  id="public_key_form" method="POST" enctype="multipart/form-data"  ></form>
+      <label>
+        Enter Plain Text to Encrypt
+      </label>
+      <textarea
+        name="plain_text"
+        class="form-control"
+        form="form-encription"></textarea>
+      <br/>
+      <label>
+        Enter Public
+      </label>
+      <textarea
+        name="enter_key"
+        class="form-control"
+        id="public_key_id"
+        form="form-encription"></textarea>
+      <br/>
+      <div class="row">
+        <div>
+          <span>Upload Public key : </span>
+        </div>
+        <div>
+          <input type="file" name="file" form="public_key_form" />
+          <button type="submit" class="btn btn-primary" form="public_key_form">Upload</button>
+        </div>
+      </div>
+      <br/>
+      <div>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        form="form-encription">Encrypt</button>
+      </div>
+      <br/>
+      <label>
+        Output
+      </label>
+      <textarea
+        name="output"
+        class="form-control"
+        readonly
+        id='chiper_text_output'>
+      </textarea>
+      <div>
+        <label>Time execution: 00</label>
+      </div> 
+    </div>
+    <div class="col">
+      <h6>RSA Decryption</h6>
+      <form>
+        <label>
+          Enter Encrypted Text to Decrypt
+        </label>
+        <textarea
+          name="chiper_text"
+          class="form-control"></textarea>
+        <br/>
+        <label>
+          Enter Private key
+        </label>
+        <textarea
+          name="private_key"
+          class="form-control"></textarea>
+        <br/>
+        <div class="row">
+          <div>
+            <span>Upload Private key : </span>
+            <input type="file"/>
+          </div>
+        </div>
+        <br/>
+        <div>
+        <button
+          type="submit"
+          class="btn btn-primary">Decrypt</button>
+        </div>
+        <br/>
+        <label>
+          Output
+        </label>
+        <textarea
+          name="output"
+          class="form-control"
+          readonly></textarea> 
+        <div>
+          <label>Time execution: 00</label>
+        </div> 
+      </form>
+    </div>
+  </div>
+</div>
+</br>
+
+<script>
+  $(function(){
+    $('#generate_key').submit(function(e){
+      e.preventDefault();
+      var t = $(this);
+      $.post("/rsa",
+      {
+        button: "Generate",
+      },
+      function(data, status){
+        t.find("[name='public_key']").val(data.pubkey)
+        t.find("[name='private_key']").val(data.privkey)
+        $("#generate_file").find("[name='pubkey']").val(data.pubkey)
+        $("#generate_file").find("[name='privkey']").val(data.privkey)
+      });
+    })
+    $('#public_key_form').on('submit',function(e) {
+      e.preventDefault();
+      var a = new FormData($(this)[0]);
+      var $this = $(this);
+      $.ajax({
+        url: "/upload_key",
+        data: a,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (data) {
+          $("#public_key_id").val(data.text);
+          $this[0].reset();
+            // do something with the result
+        }
+      });
+    })
+    $('#form-encription').on('submit',function(e) {
+      e.preventDefault();
+      var data = $(this).serializeArray()
+      var plain_text = data.find((da) => (da.name == "plain_text"))
+      var enter_key = data.find((da) => (da.name == "enter_key"))
+      $.post("/rsa-encrypt",
+      {
+        plaintText: plain_text.value,
+        key: enter_key.value,
+      },
+      function(data, status){
+        console.log(data)
+        $('#chiper_text_output').val(data.cipher)
+      });
+    })
+  });
+</script>
+{% endblock %}
