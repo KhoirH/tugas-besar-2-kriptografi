@@ -10,7 +10,7 @@ import logging
 from logging import Formatter, FileHandler
 from forms import *
 import os
-from libs.rsa_algorthm.rsa import generate_key, encrypt_message, SYMBOLS
+from libs.rsa_algorthm.rsa import generate_key, encrypt_message, SYMBOLS, decrypt_message, read_key_file
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -86,6 +86,26 @@ def rsa_encrypt():
         cipher = cipher
     )
 
+@app.route('/rsa-decrypt', methods=["POST"])
+def rsa_decrypt():
+    chiperText = request.form.get('chiperText')
+    key = request.form.get('key')
+
+    keysize, n, EorD = key.split(",")
+    k1, n1, d = (int(keysize), int(n), int(EorD))
+
+    text_len, blocksize, cipher = chiperText.split("_")
+    text_len = int(text_len)
+    blocksize = int(blocksize)
+    
+    cipher_blocks =[]
+    for block in cipher.split(","):
+        cipher_blocks.append(int(block))
+
+    text = decrypt_message(cipher_blocks, text_len, (n1, d), blocksize)
+    return  jsonify(
+        plaintText = text
+    )
 
 @app.route('/generate', methods=['POST'])
 def generate():

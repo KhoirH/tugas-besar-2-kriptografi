@@ -122,45 +122,49 @@
     </div>
     <div class="col">
       <h6>RSA Decryption</h6>
-      <form>
-        <label>
-          Enter Encrypted Text to Decrypt
-        </label>
-        <textarea
-          name="chiper_text"
-          class="form-control"></textarea>
-        <br/>
-        <label>
-          Enter Private key
-        </label>
-        <textarea
-          name="private_key"
-          class="form-control"></textarea>
-        <br/>
-        <div class="row">
-          <div>
-            <span>Upload Private key : </span>
-            <input type="file"/>
-          </div>
-        </div>
-        <br/>
+      <form id="form-decrypt"></form>
+      <form  id="private_key_form" method="POST" enctype="multipart/form-data"  ></form>
+      
+      <label>
+        Enter Encrypted Text to Decrypt
+      </label>
+      <textarea
+        name="chiper_text"
+        class="form-control"
+        form="form-decrypt"></textarea>
+      <br/>
+      <label>
+        Enter Private key
+      </label>
+      <textarea
+        name="enter_key"
+        class="form-control"
+        form="form-decrypt"
+        id="private_key_id"></textarea>
+      <br/>
+      <div class="row">
         <div>
-        <button
-          type="submit"
-          class="btn btn-primary">Decrypt</button>
+          <input type="file" name="file" form="private_key_form" />
+          <button type="submit" class="btn btn-primary" form="private_key_form">Upload</button>
         </div>
-        <br/>
-        <label>
-          Output
-        </label>
-        <textarea
-          name="output"
-          class="form-control"
-          readonly></textarea> 
-        <div>
-          <label>Time execution: 00</label>
-        </div> 
-      </form>
+      </div>
+      <br/>
+      <div>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        form="form-decrypt">Decrypt</button>
+      </div>
+      <br/>
+      <label>Output</label>
+      <textarea
+        name="output"
+        class="form-control"
+        id="plaintext_text_output"
+        readonly></textarea> 
+      <div>
+        <label>Time execution: 00</label>
+      </div> 
     </div>
   </div>
 </div>
@@ -213,6 +217,40 @@
       function(data, status){
         console.log(data)
         $('#chiper_text_output').val(data.cipher)
+      });
+    })
+  
+  $('#private_key_form').on('submit',function(e) {
+      e.preventDefault();
+      var a = new FormData($(this)[0]);
+      var $this = $(this);
+      $.ajax({
+        url: "/upload_key",
+        data: a,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (data) {
+          $("#private_key_id").val(data.text);
+          $this[0].reset();
+            // do something with the result
+        }
+      });
+    })
+    $('#form-decrypt').on('submit',function(e) {
+      e.preventDefault();
+      console.log('hilmi')
+      var data = $(this).serializeArray()
+      var chiper_text = data.find((da) => (da.name == "chiper_text"))
+      var enter_key = data.find((da) => (da.name == "enter_key"))
+      $.post("/rsa-decrypt",
+      {
+        chiperText: chiper_text.value,
+        key: enter_key.value,
+      },
+      function(data, status){
+        $('#plaintext_text_output').val(data.plaintText)
       });
     })
   });
