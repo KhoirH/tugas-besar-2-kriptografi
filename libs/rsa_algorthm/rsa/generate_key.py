@@ -4,10 +4,6 @@
 
 import os
 import sys
-prime = __file__.split("\\")
-prime.remove("generate_key.py")
-prime.remove("rsa")
-sys.path.append("\\".join(prime))
 
 from libs.rsa_algorthm.prime import generate_prime
 from random import randrange
