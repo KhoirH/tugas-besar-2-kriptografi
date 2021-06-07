@@ -219,26 +219,33 @@ def generate_keys(iNumBits=256, iConfidence=32):
 		x = random.randint( 1, (p - 1) // 2 )
 		h = modexp( g, x, p )
 
-		publicKey = PublicKey(p, g, h, iNumBits)
-		privateKey = PrivateKey(p, g, x, iNumBits)
+		publicKey = str(p) + ',' + str(g) + ',' + str(h) + ',' + str(iNumBits)
+		privateKey = str(p) + ',' + str(g) + ',' + str(x) + ',' + str(iNumBits)
 
 		return {'privateKey': privateKey, 'publicKey': publicKey}
 
 
 #encrypts a string sPlaintext using the public key k
 def encrypt(key, sPlaintext):
-		z = encode(sPlaintext, key.iNumBits)
+		key = key.split(',')
+		key = {
+			'iNumBits': int(key[3]),
+			'p': int(key[0]),
+			'g': int(key[1]),
+			'h': int(key[2]),
+		}
+		z = encode(sPlaintext, key['iNumBits'])
 
 	#cipher_pairs list will hold pairs (c, d) corresponding to each integer in z
 		cipher_pairs = []
 		#i is an integer in z
 		for i in z:
 				#pick random y from (0, p-1) inclusive
-				y = random.randint( 0, key.p )
+				y = random.randint( 0, key['p'] )
 				#c = g^y mod p
-				c = modexp( key.g, y, key.p )
+				c = modexp( key['g'], y, key['p'] )
 				#d = ih^y mod p
-				d = (i*modexp( key.h, y, key.p)) % key.p
+				d = (i*modexp( key['h'], y, key['p'])) % key['p']
 				#add the pair to the cipher pairs list
 				cipher_pairs.append( [c, d] )
 
@@ -253,7 +260,14 @@ def encrypt(key, sPlaintext):
 def decrypt(key, cipher):
 		#decrpyts each pair and adds the decrypted integer to list of plaintext integers
 		plaintext = []
-
+		key = key.split(',')
+		key = {
+			'iNumBits': int(key[3]),
+			'p': int(key[0]),
+			'g': int(key[1]),
+			'x': int(key[2]),
+		}
+		
 		cipherArray = cipher.split()
 		if (not len(cipherArray) % 2 == 0):
 				return "Malformed Cipher Text"
@@ -264,13 +278,13 @@ def decrypt(key, cipher):
 				d = int(cipherArray[i+1])
 
 				#s = c^x mod p
-				s = modexp( c, key.x, key.p )
+				s = modexp( c, key['x'], key['p'] )
 				#plaintext integer = ds^-1 mod p
-				plain = (d*modexp( s, key.p-2, key.p)) % key.p
+				plain = (d*modexp( s, key['p']-2, key['p'])) % key['p']
 				#add plain to list of plaintext integers
 				plaintext.append( plain )
 
-		decryptedText = decode(plaintext, key.iNumBits)
+		decryptedText = decode(plaintext, key['iNumBits'])
 
 	#remove trailing null bytes
 		decryptedText = "".join([ch for ch in decryptedText if ch != '\x00'])

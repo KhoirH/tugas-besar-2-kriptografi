@@ -11,6 +11,7 @@ from logging import Formatter, FileHandler
 from forms import *
 import os
 from libs.rsa_algorthm.rsa import generate_key, encrypt_message, SYMBOLS, decrypt_message, read_key_file
+from libs.elgamal_algorthm.elgamal import generate_keys, encrypt, decrypt
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -46,14 +47,11 @@ def login_required(test):
 
 @app.route('/')
 def index():
-    return render_template('pages/placeholder.home.html')
+    return redirect('/rsa')
 
 @app.route('/rsa')
 def rsa():
-    public_key = request.args.get('public_key') if request.args.get('public_key') != None else ''
-    private_key = request.args.get('private_key') if request.args.get('private_key') != None else ''
-        
-    return render_template('pages/rsa.html', public_key=public_key, private_key=private_key )
+    return render_template('pages/rsa.html')
 
 @app.route('/rsa', methods=["POST"])
 def rsa_post():
@@ -110,21 +108,37 @@ def rsa_decrypt():
 @app.route('/generate', methods=['POST'])
 def generate():
     
-    if request.form['button'] == "Download public key":
-        key = request.form['pubkey'].split(',')
-        filename = "keys/pubkey.pub"
-        name_file = "pubkey"
-    
-    if request.form['button'] == 'Download private key':
-        key = request.form['privkey'].split(',')
-        filename = "keys/privkey.pri"
-        name_file = "privkey"
-    
-    print(key)
-    file_ = open(filename, 'w')
-    file_.write("%s,%s,%s"%(1024, key[0], key[1]))
-    file_.close()
-    
+    if (request.form['type'] == 'rsa') :
+        if request.form['button'] == "Download public key":
+            key = request.form['pubkey'].split(',')
+            filename = "keys/pubkey.pub"
+            name_file = "pubkey"
+        
+        if request.form['button'] == 'Download private key':
+            key = request.form['privkey'].split(',')
+            filename = "keys/privkey.pri"
+            name_file = "privkey"
+        
+        file_ = open(filename, 'w')
+        file_.write("%s,%s,%s"%(1024, key[0], key[1]))
+        
+        file_.close()
+    else:
+        if request.form['button'] == "Download public key":
+            filename = "keys/pubkey.pub"
+            key = request.form['pubkey']
+            name_file = "pubkey"
+        
+        if request.form['button'] == 'Download private key':
+            key = request.form['privkey']
+            filename = "keys/privkey.pri"
+            name_file = "privkey"
+        
+        file_ = open(filename, 'w')
+        file_.write("%s"%(key))
+        
+        file_.close()
+
     return send_file(filename, as_attachment=True)
 
 @app.route('/upload_key', methods=['POST'])
@@ -140,6 +154,38 @@ def upload_key():
 @app.route('/elgamal')
 def elgamal():
     return render_template('pages/elgamal.html')
+
+@app.route('/elgamal', methods=["POST"])
+def elgamal_post():
+    data = request.form.get('button')
+    if data == 'Generate':
+        key = generate_keys()
+
+    return  jsonify(
+        pubkey = key.get('publicKey'),
+        privkey = key.get('privateKey'),
+    )
+
+@app.route('/elgamal-encrypt', methods=["POST"])
+def elgamal_encrypt():
+    plaintText = request.form.get('plaintText')
+    key = request.form.get('key')
+    cipher = encrypt(key, plaintText)
+
+    return  jsonify(
+        cipher = cipher
+    )
+
+@app.route('/elgamal-decrypt', methods=["POST"])
+def elgamal_decrypt():
+    chiperText = request.form.get('chiperText')
+    key = request.form.get('key')
+    
+    text = decrypt(key, chiperText)
+    return  jsonify(
+        plaintText = text
+    )
+
 
 @app.errorhandler(500)
 def internal_error(error):
